@@ -60,12 +60,13 @@ class _HomePageState extends State<HomePage> {
           color: Get.isDarkMode ? whiteClr : blackClr,
         ),
       ),
-      actions: const [
+      actions: [
         Icon(
           Icons.person,
           size: 25,
+          color: Get.isDarkMode ? whiteClr : blackClr,
         ),
-        SizedBox(
+        const SizedBox(
           width: 20,
         )
       ],
@@ -154,28 +155,56 @@ class _HomePageState extends State<HomePage> {
           return ListView.builder(
             itemCount: _taskController.taskList.length,
             itemBuilder: (_, index) {
-              print("taskList: ${_taskController.taskList.length}");
-              return AnimationConfiguration.staggeredList(
-                position: index,
-                child: SlideAnimation(
-                  child: FadeInAnimation(
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            _showBottomSheet(
-                              context,
-                              _taskController.taskList[index],
-                            );
-                          },
-                          child:
-                              TaskTile(task: _taskController.taskList[index]),
-                        ),
-                      ],
+              // print(_taskController.taskList[index].toJson());
+              if (_taskController.taskList[index].repeat == "Daily") {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  child: SlideAnimation(
+                    child: FadeInAnimation(
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showBottomSheet(
+                                context,
+                                _taskController.taskList[index],
+                              );
+                            },
+                            child:
+                                TaskTile(task: _taskController.taskList[index]),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
+              }
+              if (_taskController.taskList[index].date ==
+                  DateFormat("dd/MM/yyyy").format(_selectedDate)) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  child: SlideAnimation(
+                    child: FadeInAnimation(
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showBottomSheet(
+                                context,
+                                _taskController.taskList[index],
+                              );
+                            },
+                            child:
+                                TaskTile(task: _taskController.taskList[index]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return Container();
+              }
             },
           );
         },

@@ -366,7 +366,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       task: Task(
         title: _titleController.text,
         note: _noteController.text,
-        date: DateFormat.yMd().format(_selectedDate),
+        date: DateFormat("dd/MM/yyyy").format(_selectedDate),
         startTime: _startTime,
         endTime: _endTime,
         remind: _selectedRemind,
