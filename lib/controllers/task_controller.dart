@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
-import 'package:to_do_app/database/db_helper.dart';
 
 import '../models/task.dart';
+
+import 'package:to_do_app/database/db_helper.dart';
 
 class TaskController extends GetxController {
   @override
@@ -18,6 +19,16 @@ class TaskController extends GetxController {
 
   void getTask() async {
     List<Map<String, dynamic>> tasks = await DBHelper.query();
-    taskList.assignAll(tasks.map((data) => new Task.fromJson(data)).toList());
+    taskList.assignAll(tasks.map((data) => Task.fromJson(data)).toList());
+  }
+
+  void deleteTask(Task task) async {
+    await DBHelper.delete(task);
+    getTask();
+  }
+
+  void markTaskCompleted(int id) async {
+    await DBHelper.update(id);
+    getTask();
   }
 }

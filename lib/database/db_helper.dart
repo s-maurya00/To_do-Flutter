@@ -13,7 +13,9 @@ class DBHelper {
       return;
     }
     try {
-      String path = await getDatabasesPath() + '$_tableName.db';
+      // String path = await getDatabasesPath() + '$_tableName.db';
+      String path = '${await getDatabasesPath()}$_tableName.db';
+
       _db = await openDatabase(
         path,
         version: _version,
@@ -43,5 +45,19 @@ class DBHelper {
   static Future<List<Map<String, dynamic>>> query() async {
     print("query method called");
     return await _db!.query(_tableName);
+  }
+
+  static delete(Task task) async {
+    print("delete method called");
+    await _db!.delete(_tableName, where: "id = ?", whereArgs: [task.id]);
+  }
+
+  static update(int id) async {
+    print("update method called");
+    return await _db!.rawUpdate('''
+      UPDATE $_tableName
+      SET isCompleted = ?
+      WHERE id = ?
+    ''', [1, id]);
   }
 }
