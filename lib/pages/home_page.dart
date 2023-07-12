@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import 'package:to_do_app/common/services/theme_controller.dart';
+import 'package:to_do_app/common/services/theme_services.dart';
 import 'package:to_do_app/common/utils/colors.dart';
 import 'package:to_do_app/common/utils/theme.dart';
 import 'package:to_do_app/common/widgets/button.dart';
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
               }
               if (_taskController.taskList[index].date ==
                   DateFormat("dd/MM/yyyy").format(_selectedDate)) {
-                return AnimationConfiguration.staggeredList(
+                    return AnimationConfiguration.staggeredList(
                   position: index,
                   child: SlideAnimation(
                     child: FadeInAnimation(

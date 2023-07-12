@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 
 import 'package:to_do_app/pages/home_page.dart';
 import 'package:to_do_app/common/utils/theme.dart';
-import 'package:to_do_app/common/services/theme_controller.dart';
+import 'package:to_do_app/common/services/theme_services.dart';
 
 import 'package:to_do_app/database/db_helper.dart';
 
