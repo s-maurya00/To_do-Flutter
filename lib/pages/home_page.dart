@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:to_do_app/common/services/notification_services.dart';
 
 import 'package:to_do_app/common/services/theme_services.dart';
 import 'package:to_do_app/common/utils/colors.dart';
@@ -25,6 +26,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   final _taskController = Get.put(TaskController());
+
+  var notifyHelper;
+  @override
+  void initState() {
+    _taskController.getTask();
+    super.initState();
+    notifyHelper = NotifyHelper();
+    notifyHelper.initializeNotification();
+    notifyHelper.requestIOSPermissions();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +62,13 @@ class _HomePageState extends State<HomePage> {
       leading: GestureDetector(
         onTap: () {
           ThemeController().switchTheme();
+          notifyHelper.displayNotification(
+            title: "Theme Changed",
+            body: Get.isDarkMode
+                ? "Activated Light Theme"
+                : "Activated Dark Theme",
+          );
+          // notifyHelper.scheduledNotification();
         },
         child: Icon(
           Get.isDarkMode
@@ -157,6 +175,17 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (_, index) {
               // print(_taskController.taskList[index].toJson());
               if (_taskController.taskList[index].repeat == "Daily") {
+                DateTime date = DateFormat.jm().parse(
+                    _taskController.taskList[index].startTime.toString());
+
+                var myTime = DateFormat("HH:mm").format(date);
+
+                notifyHelper.scheduledNotification(
+                  _taskController.taskList[index],
+                  int.parse(myTime.toString().split(":")[0]),
+                  int.parse(myTime.toString().split(":")[1]),
+                );
+
                 return AnimationConfiguration.staggeredList(
                   position: index,
                   child: SlideAnimation(
@@ -181,7 +210,7 @@ class _HomePageState extends State<HomePage> {
               }
               if (_taskController.taskList[index].date ==
                   DateFormat("dd/MM/yyyy").format(_selectedDate)) {
-                    return AnimationConfiguration.staggeredList(
+                return AnimationConfiguration.staggeredList(
                   position: index,
                   child: SlideAnimation(
                     child: FadeInAnimation(
