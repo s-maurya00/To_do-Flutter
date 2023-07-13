@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
 import 'package:get/get.dart';
 
 import 'package:timezone/data/latest.dart' as tz;
@@ -12,22 +13,14 @@ class NotifyHelper {
       FlutterLocalNotificationsPlugin();
 
   initializeNotification() async {
-    tz.initializeTimeZones();
-    // this is for latest iOS settings
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-    );
+    // tz.initializeTimeZones();
+    _configureLocalTimeZone();
 
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings("appicon");
+        AndroidInitializationSettings("drawable/appicon");
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-      iOS: initializationSettingsIOS,
+    InitializationSettings initializationSettings =
+        const InitializationSettings(
       android: initializationSettingsAndroid,
     );
 
@@ -75,32 +68,18 @@ class NotifyHelper {
     Get.to(() => Container());
   }
 
-  void requestIOSPermissions() {
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-  }
-
   displayNotification({required String title, required String body}) async {
-    print("doing test");
-
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        const AndroidNotificationDetails(
       'your channel id',
       'your channel name',
+      playSound: true,
       importance: Importance.max,
       priority: Priority.high,
     );
 
-    // var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-
-    const platformChannelSpecifics = NotificationDetails(
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
-      // iOS: iOSPlatformChannelSpecifics,
     );
     await flutterLocalNotificationsPlugin.show(
       0,
@@ -111,17 +90,13 @@ class NotifyHelper {
     );
   }
 
-  scheduledNotification(Task task, int hours, int minute) async {
+  scheduledNotification(Task task, int hour, int minutes) async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
       0,
-      'scheduled title',
-      'theme changes 5 seconds ago',
-      tz.TZDateTime.now(tz.local).add(
-        Duration(
-          hours: hours,
-          minutes: minute,
-        ),
-      ),
+      task.title,
+      task.note,
+      _convertTimeToTimeZone(hour, minutes),
+      // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'your channel id',
@@ -131,6 +106,50 @@ class NotifyHelper {
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
+
+  tz.TZDateTime _convertTimeToTimeZone(int hours, int minute) {
+    // what it does is it takes the current time of the device and converts it to the local time zone which means if the user is in India it will convert the time to Indian time zone.
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
+    final tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hours,
+      minute,
+    );
+
+    print("scheduledDate: $scheduledDate");
+
+    // we did this because if the user selects the time less than the current time then it will not schedule the notification so we are adding one day to the scheduled date. Here, we are assuming that the user will not select the time less than the current time. Also, we use .add on the scheduledDate as adding one day to the now will change the current time of the device which we don’t want. as a whole, we want to add one day to the scheduledDate and not to the now.
+    if (scheduledDate.isBefore(now)) {
+      print("scheduledDate is before now");
+      scheduledDate.add(const Duration(days: 1));
+    }
+
+    return scheduledDate;
+  }
+
+  Future<void> _configureLocalTimeZone() async {
+    tz.initializeTimeZones();
+
+    final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      print("tz.setLocalLocation ran successfully");
+    } catch (e) {
+      print(e);
+      print("using default timezone of Asia/Kolkata");
+      tz.setLocalLocation(tz.getLocation("Asia/Kolkata"));
+    }
+  }
+
+  // Future<void> cancelNotification() async {
+  //   await flutterLocalNotificationsPlugin.cancel(0);
+  // }
 }

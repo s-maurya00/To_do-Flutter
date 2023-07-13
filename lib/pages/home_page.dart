@@ -27,14 +27,13 @@ class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   final _taskController = Get.put(TaskController());
 
-  var notifyHelper;
+  NotifyHelper notifyHelper = NotifyHelper();
+
   @override
   void initState() {
-    _taskController.getTask();
     super.initState();
-    notifyHelper = NotifyHelper();
+    _taskController.getTask();
     notifyHelper.initializeNotification();
-    notifyHelper.requestIOSPermissions();
   }
 
   @override
@@ -175,8 +174,14 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (_, index) {
               // print(_taskController.taskList[index].toJson());
               if (_taskController.taskList[index].repeat == "Daily") {
-                DateTime date = DateFormat.jm().parse(
+                print(
+                    "_taskController.taskList[index].startTime.toString() is: ${_taskController.taskList[index].startTime.toString()}");
+
+                DateTime date = DateFormat("HH:mm a").parse(
                     _taskController.taskList[index].startTime.toString());
+                    // the explaination of the above line is. 1st DateFormat is used to convert the time into 24 hour format. 2nd the jm() method is called which converts the time into 24 hour format. 3rd the parse method is called which converts the time into DateTime format. 4th the time is converted into string and then split into hours and minutes. 5th the hours and minutes are converted into int and then passed to the scheduledNotification method.
+                    // the same can also be achieved by following alternative code for getting date2.
+                    // var date2 = DateFormat("HH:mm").parse(_taskController.taskList[index].startTime.toString());
 
                 var myTime = DateFormat("HH:mm").format(date);
 
