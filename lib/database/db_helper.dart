@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/task.dart';
@@ -13,14 +14,12 @@ class DBHelper {
       return;
     }
     try {
-      // String path = await getDatabasesPath() + '$_tableName.db';
       String path = '${await getDatabasesPath()}$_tableName.db';
 
       _db = await openDatabase(
         path,
         version: _version,
         onCreate: (db, version) {
-          print("Creating a new table");
           return db.execute(
             "CREATE TABLE $_tableName("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -33,27 +32,27 @@ class DBHelper {
         },
       );
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
   static Future<int> insert(Task task) async {
-    print("insert method called");
+    debugPrint("insert method called");
     return await _db!.insert(_tableName, task.toJson());
   }
 
   static Future<List<Map<String, dynamic>>> query() async {
-    print("query method called");
+    debugPrint("query method called");
     return await _db!.query(_tableName);
   }
 
   static delete(Task task) async {
-    print("delete method called");
+    debugPrint("delete method called");
     await _db!.delete(_tableName, where: "id = ?", whereArgs: [task.id]);
   }
 
   static update(int id) async {
-    print("update method called");
+    debugPrint("update method called");
     return await _db!.rawUpdate('''
       UPDATE $_tableName
       SET isCompleted = ?

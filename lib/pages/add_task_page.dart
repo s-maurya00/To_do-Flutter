@@ -23,11 +23,7 @@ class AddTaskPage extends StatefulWidget {
 class _AddTaskPageState extends State<AddTaskPage> {
   DateTime _selectedDate = DateTime.now();
   String _endTime = "11:59 PM";
-  String _startTime = DateFormat("hh:mm a")
-      .format(
-        DateTime.now(),
-      )
-      .toString();
+  String _startTime = "12:00 AM";
 
   int _selectedRemind = 0;
   List<int> remindList = [
@@ -244,7 +240,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   _getDateFromUser() async {
     DateTime? pickerDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
@@ -254,7 +250,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         _selectedDate = pickerDate;
       });
     } else {
-      print("It's null");
+      debugPrint("It's null");
     }
   }
 
@@ -264,7 +260,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     String formattedTime;
 
     if (pickedTime == null) {
-      print("Time cancelled");
+      debugPrint("Time cancelled");
       return;
     }
 
@@ -425,7 +421,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       // schedule notification at "12:00 am", "REMINDER" days before the "selected date"
       notifyHelper.scheduledNotification(
         Task(
-          id: Random().nextInt(100),
+          id: Random().nextInt(1000000),
           title: _titleController.text,
           note: _noteController.text,
           date: DateFormat("dd/MM/yyyy").format(_selectedDate),
@@ -449,7 +445,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       // schedule notification at "12:00 am" on the "selected date"
       notifyHelper.scheduledNotification(
         Task(
-          id: Random().nextInt(100),
+          id: Random().nextInt(1000000),
           title: _titleController.text,
           note: _noteController.text,
           date: DateFormat("dd/MM/yyyy").format(_selectedDate),

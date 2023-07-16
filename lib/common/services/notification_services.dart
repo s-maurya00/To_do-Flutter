@@ -61,9 +61,9 @@ class NotifyHelper {
 
   Future selectNotification(String? payload) async {
     if (payload != null) {
-      print('notification payload: $payload');
+      debugPrint('notification payload: $payload');
     } else {
-      print("Notification Done");
+      debugPrint("Notification Done");
     }
     Get.to(() => Container());
   }
@@ -91,7 +91,8 @@ class NotifyHelper {
     );
   }
 
-  scheduledNotification(Task task, int year, int month, int day, int hour, int minutes) async {
+  scheduledNotification(
+      Task task, int year, int month, int day, int hour, int minutes) async {
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.exactAllowWhileIdle;
 
@@ -116,14 +117,13 @@ class NotifyHelper {
               ? DateTimeComponents.time
               : (task.repeat == "Weekly"
                   ? DateTimeComponents.dayOfWeekAndTime
-                  : DateTimeComponents.dateAndTime)),
+                  : DateTimeComponents.dayOfMonthAndTime)),
     );
   }
 
-  tz.TZDateTime _convertTimeToTimeZone(int year, int month, int day, int hours, int minute) {
+  tz.TZDateTime _convertTimeToTimeZone(
+      int year, int month, int day, int hours, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-
-    // print("--------------------INSIDE ConvertTimeToTimeZone function tz.local: ${tz.local}, now.year: ${now.year}, now.month: ${now.month}, now.day: ${now.day} -------------------- AND -------------------- year: $year, month: $month, day: $day, hours: $hours, minute: $minute------------------");
 
     final tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
@@ -134,10 +134,10 @@ class NotifyHelper {
       minute,
     );
 
-    print("scheduledDate: $scheduledDate");
+    debugPrint("scheduledDate: $scheduledDate");
 
     if (scheduledDate.isBefore(now)) {
-      print("scheduledDate is before now");
+      debugPrint("scheduledDate is before now");
       scheduledDate.add(const Duration(days: 1));
     }
 
@@ -151,10 +151,10 @@ class NotifyHelper {
 
     try {
       tz.setLocalLocation(tz.getLocation(timeZoneName));
-      print("tz.setLocalLocation ran successfully");
+      debugPrint("tz.setLocalLocation ran successfully");
     } catch (e) {
-      print(e);
-      print("using default timezone of Asia/Kolkata");
+      debugPrint(e.toString());
+      debugPrint("using default timezone of Asia/Kolkata");
       tz.setLocalLocation(tz.getLocation("Asia/Kolkata"));
     }
   }

@@ -4,14 +4,13 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do_app/common/services/notification_services.dart';
 
+import 'package:to_do_app/common/services/notification_services.dart';
 import 'package:to_do_app/common/services/theme_services.dart';
 import 'package:to_do_app/common/utils/colors.dart';
 import 'package:to_do_app/common/utils/theme.dart';
 import 'package:to_do_app/common/widgets/button.dart';
 import 'package:to_do_app/pages/add_task_page.dart';
-
 import '../common/widgets/task_tile.dart';
 import '../controllers/task_controller.dart';
 import '../models/task.dart';
@@ -57,6 +56,7 @@ class _HomePageState extends State<HomePage> {
   _appBar() {
     return AppBar(
       elevation: 0,
+      scrolledUnderElevation: 0,
       backgroundColor: context.theme.appBarTheme.backgroundColor,
       leading: GestureDetector(
         onTap: () {
@@ -67,7 +67,6 @@ class _HomePageState extends State<HomePage> {
                 ? "Activated Light Theme"
                 : "Activated Dark Theme",
           );
-          // notifyHelper.scheduledNotification();
         },
         child: Get.isDarkMode
             ? const Icon(
@@ -178,25 +177,10 @@ class _HomePageState extends State<HomePage> {
           return ListView.builder(
             itemCount: _taskController.taskList.length,
             itemBuilder: (_, index) {
-              print(
+              debugPrint(
                   "task $index is: ${_taskController.taskList[index].toJson()}");
 
               if (_taskController.taskList[index].repeat == "Daily") {
-                // DateTime dateWith24HrTimeFormat = DateFormat("HH:mm a").parse(
-                //     _taskController.taskList[index].startTime.toString());
-
-                // // here, the date is of the format 2021-10-12 09:00:00.000
-                // print("dateWith24HrTimeFormat: $dateWith24HrTimeFormat");
-
-                // var myTime = DateFormat("HH:mm").format(dateWith24HrTimeFormat);
-                // print("myTime: $myTime");
-
-                // notifyHelper.scheduledNotification(
-                //   _taskController.taskList[index],
-                //   int.parse(myTime.toString().split(":")[0]),
-                //   int.parse(myTime.toString().split(":")[1]),
-                // );
-
                 return AnimationConfiguration.staggeredList(
                   position: index,
                   child: SlideAnimation(
