@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +46,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
     "Daily",
     "Weekly",
     "Monthly",
-    "Yearly",
   ];
 
   int _selectedColor = 0;
@@ -368,7 +369,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   _addTaskToDb() async {
-    int value = await _taskController.addTask(
+    await _taskController.addTask(
       task: Task(
         title: _titleController.text,
         note: _noteController.text,
@@ -381,35 +382,93 @@ class _AddTaskPageState extends State<AddTaskPage> {
         isCompleted: 0,
       ),
     );
-    // print("current row id is $value");
   }
 
   _setNotificationSchedule() {
     DateTime dateWith24HrTimeFormat =
         DateFormat("HH:mm a").parse(_startTime.toString());
 
-    // here, the date is of the format 2021-10-12 09:00:00.000
-    print(
-        "------------------------ADDTASKPAGE: dateWith24HrTimeFormat: $dateWith24HrTimeFormat");
-
     var myTime = DateFormat("HH:mm").format(dateWith24HrTimeFormat);
-    print("------------------------ADDTASKPAGE: myTime: $myTime");
 
-    notifyHelper.scheduledNotification(
-      Task(
-        id: _taskController.taskList.length + 1,
-        title: _titleController.text,
-        note: _noteController.text,
-        date: DateFormat("dd/MM/yyyy").format(_selectedDate),
-        startTime: _startTime,
-        endTime: _endTime,
-        remind: _selectedRemind,
-        repeat: _selectedRepeat,
-        color: _selectedColor,
-        isCompleted: 0,
-      ),
-      int.parse(myTime.toString().split(":")[0]),
-      int.parse(myTime.toString().split(":")[1]),
-    );
+    if (_selectedRemind == 0) {
+      // if "NO REMINDER" is selected then schedule notification at "12:00 am" ONLY on the "selected date"
+      notifyHelper.scheduledNotification(
+        Task(
+          id: _taskController.taskList.length,
+          title: _titleController.text,
+          note: _noteController.text,
+          date: DateFormat("dd/MM/yyyy").format(_selectedDate),
+          startTime: _startTime,
+          endTime: _endTime,
+          remind: _selectedRemind,
+          repeat: _selectedRepeat,
+          color: _selectedColor,
+          isCompleted: 0,
+        ),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(6, 10)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(3, 5)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(0, 2)),
+        int.parse(myTime.toString().split(":")[0]),
+        int.parse(myTime.toString().split(":")[1]),
+      );
+    } else {
+      // if "REMINDER" is selected then schedule notification at "12:00 am" "REMINDER" days before the "selected date" and also schedule notification at "12:00 am" on the "selected date"
+
+      // calculating reminder date
+      DateTime reminderDate = _selectedDate.subtract(
+        Duration(days: _selectedRemind),
+      );
+
+      // schedule notification at "12:00 am", "REMINDER" days before the "selected date"
+      notifyHelper.scheduledNotification(
+        Task(
+          id: Random().nextInt(100),
+          title: _titleController.text,
+          note: _noteController.text,
+          date: DateFormat("dd/MM/yyyy").format(_selectedDate),
+          startTime: _startTime,
+          endTime: _endTime,
+          remind: _selectedRemind,
+          repeat: _selectedRepeat,
+          color: _selectedColor,
+          isCompleted: 0,
+        ),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(reminderDate).substring(6, 10)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(reminderDate).substring(3, 5)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(reminderDate).substring(0, 2)),
+        int.parse(myTime.toString().split(":")[0]),
+        int.parse(myTime.toString().split(":")[1]),
+      );
+
+      // schedule notification at "12:00 am" on the "selected date"
+      notifyHelper.scheduledNotification(
+        Task(
+          id: Random().nextInt(100),
+          title: _titleController.text,
+          note: _noteController.text,
+          date: DateFormat("dd/MM/yyyy").format(_selectedDate),
+          startTime: _startTime,
+          endTime: _endTime,
+          remind: _selectedRemind,
+          repeat: _selectedRepeat,
+          color: _selectedColor,
+          isCompleted: 0,
+        ),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(6, 10)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(3, 5)),
+        int.parse(
+            DateFormat('dd/MM/yyyy').format(_selectedDate).substring(0, 2)),
+        int.parse(myTime.toString().split(":")[0]),
+        int.parse(myTime.toString().split(":")[1]),
+      );
+    }
   }
 }

@@ -91,7 +91,7 @@ class NotifyHelper {
     );
   }
 
-  scheduledNotification(Task task, int hour, int minutes) async {
+  scheduledNotification(Task task, int year, int month, int day, int hour, int minutes) async {
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.exactAllowWhileIdle;
 
@@ -99,7 +99,7 @@ class NotifyHelper {
       task.id!.toInt(),
       task.title,
       task.note,
-      _convertTimeToTimeZone(hour, minutes),
+      _convertTimeToTimeZone(year, month, day, hour, minutes),
       // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
@@ -116,28 +116,26 @@ class NotifyHelper {
               ? DateTimeComponents.time
               : (task.repeat == "Weekly"
                   ? DateTimeComponents.dayOfWeekAndTime
-                  : DateTimeComponents.dayOfMonthAndTime)),
+                  : DateTimeComponents.dateAndTime)),
     );
   }
 
-  tz.TZDateTime _convertTimeToTimeZone(int hours, int minute) {
-    // what it does is it takes the current time of the device and converts it to the local time zone which means if the user is in India it will convert the time to Indian time zone.
+  tz.TZDateTime _convertTimeToTimeZone(int year, int month, int day, int hours, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
 
-    print("--------------------INSIDE ConvertTimeToTimeZone function tz.local: ${tz.local}, now.year: ${now.year}, now.month: ${now.month}, now.day: ${now.day}");
+    // print("--------------------INSIDE ConvertTimeToTimeZone function tz.local: ${tz.local}, now.year: ${now.year}, now.month: ${now.month}, now.day: ${now.day} -------------------- AND -------------------- year: $year, month: $month, day: $day, hours: $hours, minute: $minute------------------");
 
     final tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
-      now.year,
-      now.month,
-      now.day,
+      year,
+      month,
+      day,
       hours,
       minute,
     );
 
     print("scheduledDate: $scheduledDate");
 
-    // we did this because if the user selects the time less than the current time then it will not schedule the notification so we are adding one day to the scheduled date. Here, we are assuming that the user will not select the time less than the current time. Also, we use .add on the scheduledDate as adding one day to the now will change the current time of the device which we don’t want. as a whole, we want to add one day to the scheduledDate and not to the now.
     if (scheduledDate.isBefore(now)) {
       print("scheduledDate is before now");
       scheduledDate.add(const Duration(days: 1));
