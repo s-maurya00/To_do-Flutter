@@ -13,9 +13,7 @@ class Themes {
     appBarTheme: const AppBarTheme(
       backgroundColor: whiteClr,
     ),
-    // primaryColor: primaryClr,
-    // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-    // useMaterial3: true,
+    useMaterial3: true,
   );
 
   static final dark = ThemeData(
@@ -24,8 +22,7 @@ class Themes {
     appBarTheme: const AppBarTheme(
       backgroundColor: darkGreyClr,
     ),
-    // primaryColor: darkGreyClr,
-    // useMaterial3: true,
+    useMaterial3: true,
   );
 }
 

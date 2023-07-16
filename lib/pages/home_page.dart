@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
           _appTaskBar(),
           _appDateBar(),
           const SizedBox(
-            height: 10,
+            height: 20,
           ),
           _showTasks(),
         ],
@@ -69,13 +69,17 @@ class _HomePageState extends State<HomePage> {
           );
           // notifyHelper.scheduledNotification();
         },
-        child: Icon(
-          Get.isDarkMode
-              ? Icons.wb_sunny_outlined
-              : Icons.nightlight_round_rounded,
-          size: 25,
-          color: Get.isDarkMode ? whiteClr : blackClr,
-        ),
+        child: Get.isDarkMode
+            ? const Icon(
+                Icons.wb_sunny_outlined,
+                size: 25,
+                color: whiteClr,
+              )
+            : const Icon(
+                Icons.nightlight_round_rounded,
+                size: 25,
+                color: blackClr,
+              ),
       ),
       actions: [
         Icon(
@@ -85,7 +89,7 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(
           width: 20,
-        )
+        ),
       ],
     );
   }
@@ -157,9 +161,11 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onDateChange: (date) {
-          setState(() {
-            _selectedDate = date;
-          });
+          setState(
+            () {
+              _selectedDate = date;
+            },
+          );
         },
       ),
     );
@@ -172,24 +178,24 @@ class _HomePageState extends State<HomePage> {
           return ListView.builder(
             itemCount: _taskController.taskList.length,
             itemBuilder: (_, index) {
-              // print(_taskController.taskList[index].toJson());
+              print(
+                  "task $index is: ${_taskController.taskList[index].toJson()}");
+
               if (_taskController.taskList[index].repeat == "Daily") {
-                print(
-                    "_taskController.taskList[index].startTime.toString() is: ${_taskController.taskList[index].startTime.toString()}");
+                // DateTime dateWith24HrTimeFormat = DateFormat("HH:mm a").parse(
+                //     _taskController.taskList[index].startTime.toString());
 
-                DateTime date = DateFormat("HH:mm a").parse(
-                    _taskController.taskList[index].startTime.toString());
-                    // the explaination of the above line is. 1st DateFormat is used to convert the time into 24 hour format. 2nd the jm() method is called which converts the time into 24 hour format. 3rd the parse method is called which converts the time into DateTime format. 4th the time is converted into string and then split into hours and minutes. 5th the hours and minutes are converted into int and then passed to the scheduledNotification method.
-                    // the same can also be achieved by following alternative code for getting date2.
-                    // var date2 = DateFormat("HH:mm").parse(_taskController.taskList[index].startTime.toString());
+                // // here, the date is of the format 2021-10-12 09:00:00.000
+                // print("dateWith24HrTimeFormat: $dateWith24HrTimeFormat");
 
-                var myTime = DateFormat("HH:mm").format(date);
+                // var myTime = DateFormat("HH:mm").format(dateWith24HrTimeFormat);
+                // print("myTime: $myTime");
 
-                notifyHelper.scheduledNotification(
-                  _taskController.taskList[index],
-                  int.parse(myTime.toString().split(":")[0]),
-                  int.parse(myTime.toString().split(":")[1]),
-                );
+                // notifyHelper.scheduledNotification(
+                //   _taskController.taskList[index],
+                //   int.parse(myTime.toString().split(":")[0]),
+                //   int.parse(myTime.toString().split(":")[1]),
+                // );
 
                 return AnimationConfiguration.staggeredList(
                   position: index,
@@ -250,6 +256,7 @@ class _HomePageState extends State<HomePage> {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.only(top: 4),
+        width: MediaQuery.of(context).size.width,
         height: task.isCompleted == 1
             ? MediaQuery.of(context).size.height * 0.20
             : MediaQuery.of(context).size.height * 0.28,

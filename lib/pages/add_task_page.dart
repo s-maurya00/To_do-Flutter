@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:to_do_app/common/services/notification_services.dart';
 
 import 'package:to_do_app/common/utils/theme.dart';
 import 'package:to_do_app/common/widgets/button.dart';
@@ -19,21 +20,22 @@ class AddTaskPage extends StatefulWidget {
 
 class _AddTaskPageState extends State<AddTaskPage> {
   DateTime _selectedDate = DateTime.now();
-  String _endTime = "11:55 PM";
+  String _endTime = "11:59 PM";
   String _startTime = DateFormat("hh:mm a")
       .format(
         DateTime.now(),
       )
       .toString();
 
-  int _selectedRemind = 5;
+  int _selectedRemind = 0;
   List<int> remindList = [
+    0,
     1,
     2,
     5,
-    10,
     15,
-    20,
+    30,
+    60,
   ];
 
   String _selectedRepeat = "None";
@@ -51,6 +53,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
   final TextEditingController _noteController = TextEditingController();
 
   final TaskController _taskController = Get.put(TaskController());
+
+  NotifyHelper notifyHelper = NotifyHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -142,11 +146,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   ),
                   iconSize: 32,
                   elevation: 4,
-                  style: subTitleStyle.merge(
-                    const TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
+                  style: subTitleStyle,
                   underline: Container(height: 0),
                   items: remindList.map<DropdownMenuItem<String>>(
                     (int value) {
@@ -198,7 +198,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   _colorPallete(),
                   MyButton(
                     label: "Create Task",
-                    onTap: () => _validateTask(),
+                    onTap: () {
+                      _validateTask();
+                    },
                   ),
                 ],
               ),
@@ -233,7 +235,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
         SizedBox(
           width: 20,
-        )
+        ),
       ],
     );
   }
@@ -345,19 +347,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
   _validateTask() {
     if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
       _addTaskToDb();
+      _setNotificationSchedule();
       Get.back();
     } else if (_titleController.text.isEmpty || _noteController.text.isEmpty) {
-      Get.snackbar("Required", "All fields are required",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.isDarkMode ? whiteClr : blackClr,
-          colorText: Get.isDarkMode ? blackClr : whiteClr,
-          icon: const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.red,
-          ),
-          margin: const EdgeInsets.all(16),
-          borderRadius: 8,
-          duration: const Duration(seconds: 3));
+      Get.snackbar(
+        "Required",
+        "All fields are required",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.isDarkMode ? whiteClr : blackClr,
+        colorText: Get.isDarkMode ? blackClr : whiteClr,
+        icon: const Icon(
+          Icons.warning_amber_rounded,
+          color: Colors.red,
+        ),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 3),
+      );
     }
   }
 
@@ -375,6 +381,35 @@ class _AddTaskPageState extends State<AddTaskPage> {
         isCompleted: 0,
       ),
     );
-    print("current row id is $value");
+    // print("current row id is $value");
+  }
+
+  _setNotificationSchedule() {
+    DateTime dateWith24HrTimeFormat =
+        DateFormat("HH:mm a").parse(_startTime.toString());
+
+    // here, the date is of the format 2021-10-12 09:00:00.000
+    print(
+        "------------------------ADDTASKPAGE: dateWith24HrTimeFormat: $dateWith24HrTimeFormat");
+
+    var myTime = DateFormat("HH:mm").format(dateWith24HrTimeFormat);
+    print("------------------------ADDTASKPAGE: myTime: $myTime");
+
+    notifyHelper.scheduledNotification(
+      Task(
+        id: _taskController.taskList.length + 1,
+        title: _titleController.text,
+        note: _noteController.text,
+        date: DateFormat("dd/MM/yyyy").format(_selectedDate),
+        startTime: _startTime,
+        endTime: _endTime,
+        remind: _selectedRemind,
+        repeat: _selectedRepeat,
+        color: _selectedColor,
+        isCompleted: 0,
+      ),
+      int.parse(myTime.toString().split(":")[0]),
+      int.parse(myTime.toString().split(":")[1]),
+    );
   }
 }

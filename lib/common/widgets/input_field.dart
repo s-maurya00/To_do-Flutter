@@ -31,7 +31,6 @@ class MyInputField extends StatelessWidget {
           Container(
             height: 52,
             margin: const EdgeInsets.only(top: 8),
-            // padding: EdgeInsets.only(left: 14,),
             decoration: BoxDecoration(
               border: Border.all(
                 color: greyClr,
@@ -50,7 +49,6 @@ class MyInputField extends StatelessWidget {
                     controller: controller,
                     style: subTitleStyle,
                     decoration: InputDecoration(
-                      //   border: InputBorder.none,
                       hintText: placeholder,
                       hintStyle: subTitleStyle,
                       focusedBorder: UnderlineInputBorder(
@@ -69,7 +67,6 @@ class MyInputField extends StatelessWidget {
                           width: 0,
                         ),
                       ),
-                      //   suffixIcon: widget,
                     ),
                   ),
                 ),

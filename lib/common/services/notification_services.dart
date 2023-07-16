@@ -30,34 +30,34 @@ class NotifyHelper {
     );
   }
 
-  Future onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) async {
-    // display a dialog with the notification details, tap ok to go to another page
-    // showDialog(
-    //   //context: Get.context!,
-    //   builder: (BuildContext context) => CupertinoAlertDialog(
-    //     title: Text(title!),
-    //     content: Text(body!),
-    //     actions: [
-    //       CupertinoDialogAction(
-    //         isDefaultAction: true,
-    //         child: Text('Ok'),
-    //         onPressed: () async {
-    //           Navigator.of(context, rootNavigator: true).pop();
-    //           await Navigator.push(
-    //             context,
-    //             MaterialPageRoute(
-    //               builder: (context) => SecondScreen(payload),
-    //             ),
-    //           );
-    //         },
-    //       ),
-    //     ],
-    //   ),
-    // );
+  // Future onDidReceiveLocalNotification(
+  //     int id, String? title, String? body, String? payload) async {
+  //   display a dialog with the notification details, tap ok to go to another page
+  //   showDialog(
+  //     //context: Get.context!,
+  //     builder: (BuildContext context) => CupertinoAlertDialog(
+  //       title: Text(title!),
+  //       content: Text(body!),
+  //       actions: [
+  //         CupertinoDialogAction(
+  //           isDefaultAction: true,
+  //           child: Text('Ok'),
+  //           onPressed: () async {
+  //             Navigator.of(context, rootNavigator: true).pop();
+  //             await Navigator.push(
+  //               context,
+  //               MaterialPageRoute(
+  //                 builder: (context) => SecondScreen(payload),
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ],
+  //     ),
+  //   );
 
-    Get.dialog(Text("Welcome to flutter"));
-  }
+  //   Get.dialog(Text("Welcome to flutter"));
+  // }
 
   Future selectNotification(String? payload) async {
     if (payload != null) {
@@ -81,6 +81,7 @@ class NotifyHelper {
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
+
     await flutterLocalNotificationsPlugin.show(
       0,
       title,
@@ -91,8 +92,11 @@ class NotifyHelper {
   }
 
   scheduledNotification(Task task, int hour, int minutes) async {
+    AndroidScheduleMode androidScheduleMode =
+        AndroidScheduleMode.exactAllowWhileIdle;
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
+      task.id!.toInt(),
       task.title,
       task.note,
       _convertTimeToTimeZone(hour, minutes),
@@ -103,16 +107,24 @@ class NotifyHelper {
           'your channel name',
         ),
       ),
-      androidAllowWhileIdle: true,
+      androidScheduleMode: androidScheduleMode,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      matchDateTimeComponents: task.repeat == "None"
+          ? null
+          : (task.repeat == "Daily"
+              ? DateTimeComponents.time
+              : (task.repeat == "Weekly"
+                  ? DateTimeComponents.dayOfWeekAndTime
+                  : DateTimeComponents.dayOfMonthAndTime)),
     );
   }
 
   tz.TZDateTime _convertTimeToTimeZone(int hours, int minute) {
     // what it does is it takes the current time of the device and converts it to the local time zone which means if the user is in India it will convert the time to Indian time zone.
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
+    print("--------------------INSIDE ConvertTimeToTimeZone function tz.local: ${tz.local}, now.year: ${now.year}, now.month: ${now.month}, now.day: ${now.day}");
 
     final tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
